@@ -151,6 +151,7 @@ public final class GameboardGUI extends JFrame {
    * @param username
    */
   private void playerWin(String username) {
+    disabled = true;
     output.setText(username + " ha ganado!");
     scoreOutput.setText("Score: " + score);
     setGridColor(Color.BLACK);

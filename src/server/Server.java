@@ -38,11 +38,11 @@ public final class Server {
   public void tryDeclareWinner(String username) throws InterruptedException {
     if (game.isWinner(username)) {
       broadcast.declareWinner(username);
-      listener.stopListening();
-      // Waits until the broadcast and listener are done
+      // Espera a que acabe el broadcast para terminar de escuchar golpes
       broadcast.join();
+      listener.stopListening();
       listener.join();
-      // Starts a new match
+      // Comienza una nueva partida
       startNewMatch();
     }
   }
@@ -73,9 +73,6 @@ public final class Server {
     // Escucha que todos los jugadores esten listos cada medio segundo
     System.out.println("Esperando jugadores...");
     while(!game.hasOnlinePlayers() || !game.allPlayersReady()) {
-      System.out.println("online" + game.hasOnlinePlayers());
-      System.out.println("ready" + game.allPlayersReady());
-      System.out.println("-----");
       Thread.sleep(1000);
     }
     System.out.println("Listo! A comenzar.");
