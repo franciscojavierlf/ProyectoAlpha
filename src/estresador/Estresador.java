@@ -34,7 +34,6 @@ public class Estresador extends Thread {
    * Agrega los listeners necesarios.
    */
   public void init() {
-    final String estresadorUsername = username;
     // Aleatoriamente pega cada vez que recibe señal de topo
     connection.addMoleListener(new MoleListener() {
       @Override
@@ -45,10 +44,10 @@ public class Estresador extends Thread {
       }
 
       @Override
-      public void onPlayerWin(String username) {
+      public void onPlayerWin(String winner) {
         // Acabando el juego, imprime el promedio
         average /= hits;
-        System.out.println("Tiempo promedio de " + estresadorUsername + ": " + average);
+        System.out.println("Tiempo promedio de golpe para " + username + ": " + average);
       }
     });
   }
@@ -78,8 +77,13 @@ public class Estresador extends Thread {
 
   @Override
   public void run() {
-    // Se pone como listo
     try {
+      // Hace login
+      long time = System.currentTimeMillis();
+      connection.getGame().login(username);
+      time = System.currentTimeMillis() - time;
+      System.out.println("Tiempo de login para " + username + ": " + time);
+      // Luego indica que esta listo
       connection.getGame().isReady(username, true);
     } catch (RemoteException e) {
       e.printStackTrace();
@@ -92,9 +96,6 @@ public class Estresador extends Thread {
    */
   public static void main(String[] args) {
 
-    String type = "login"; // Hace las pruebas de login
-    //String type = "play"; // Hace las pruebas de jugar;
-
     PlayerConnection connection = new PlayerConnection();
     connection.connect();
     // Empieza a escuchar el broadcast
@@ -102,20 +103,18 @@ public class Estresador extends Thread {
 
     // Hace varios jugadores y estresa el servidor
     Estresador estresador;
-    int numJugadores = 500;
+    int numJugadores = 10;
     Estresador[] estresadores = new Estresador[numJugadores];
-    try {
-      // Agrega a todos los jugadores
-      for(int i = 0; i < numJugadores ; i++) {
-        connection.getGame().login(i + "");
-        estresadores[i] = new Estresador(i + "", connection);
-        estresadores[i].init(); // Inicializa listeners
-      }
-      // Luego todos indican que estan listos y comienzan a pegar
-      for (Estresador s : estresadores)
-        s.start();
-    } catch (RemoteException e) {
-      e.printStackTrace();
+    String username;
+    // Agrega a todos los jugadores
+    for(int i = 0; i < numJugadores ; i++) {
+      // Calcula el tiempo promedio de login
+      username = i + "";
+      estresadores[i] = new Estresador(username, connection);
+      estresadores[i].init(); // Inicializa listeners (no afecta al estresador)
     }
+    // Luego todos hacen login, indican que estan listos y comienzan a pegar
+    for (Estresador s : estresadores)
+      s.start();
   }
 }

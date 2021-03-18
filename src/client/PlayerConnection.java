@@ -123,7 +123,6 @@ public final class PlayerConnection extends Thread {
       // Recibe el mensaje
       multicastSocket.receive(msgIn);
       msg = new String(msgIn.getData(), 0, msgIn.getLength());
-
       // Ganador
       if (msg.equals("WINNER")) {
         // Se espera a recibir el nombre del ganador

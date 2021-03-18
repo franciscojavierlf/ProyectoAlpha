@@ -104,12 +104,13 @@ public final class Game implements IGame {
 
   /**
    * Un jugador hace login y recibe la informacion del servidor.
+   * Tiene que ser sincrono para evitar doble login.
    * @param username
    * @return
    * @throws RemoteException
    */
   @Override
-  public boolean login(String username) throws RemoteException {
+  public synchronized boolean login(String username) throws RemoteException {
     // Jugador ya existe
     if (playerExists(username))
       return false;
