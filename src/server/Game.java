@@ -153,7 +153,7 @@ public final class Game implements IGame {
    * @throws RemoteException
    */
   @Override
-  public void isReady(String username, boolean ready) throws RemoteException {
+  public synchronized void isReady(String username, boolean ready) throws RemoteException {
     Player p = getPlayer(username);
     if (p != null) p.setReady(ready);
   }

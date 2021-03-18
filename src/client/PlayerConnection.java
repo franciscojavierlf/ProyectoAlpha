@@ -24,6 +24,8 @@ import java.util.logging.Logger;
  */
 public final class PlayerConnection extends Thread {
 
+  private static int failedHits = 0;
+
   private IGame game;
 
   private MulticastSocket multicastSocket;
@@ -83,8 +85,10 @@ public final class PlayerConnection extends Thread {
       out.writeUTF(username + "," + position);
       // Espera a recibir respuesta
       return in.readBoolean();
-    }catch (IOException ex){
-      Logger.getLogger(PlayerConnection.class.getName()).log(Level.SEVERE, null, ex);}
+    } catch (IOException ex) {
+      failedHits++;
+      System.err.println("Error al golpear! Van " + failedHits);
+    }
     finally {
       if(socket != null)
         try {
@@ -139,7 +143,7 @@ public final class PlayerConnection extends Thread {
   }
 
   @Override
-  public void run(){
+  public void run() {
     try {
       // Se conecta al broadcast
       connectToBroadcast();

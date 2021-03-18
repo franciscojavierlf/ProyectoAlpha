@@ -84,7 +84,7 @@ public class Estresador extends Thread {
     try {
       // Comienza a escuchar el broadcast
       connection.start();
-      
+
       // Hace login
       long time = System.currentTimeMillis();
       connection.getGame().login(username);
@@ -102,13 +102,15 @@ public class Estresador extends Thread {
    * @param args
    */
   public static void main(String[] args) {
-
     // Hace varios jugadores y estresa el servidor
-    Estresador estresador;
-    int numJugadores = 10;
+    int numJugadores = 250;
+
+    // Configuracion especial para el limite de sockets
+    System.setProperty("sun.net.maxDatagramSockets", numJugadores + "");
+
+    // Agrega a todos los jugadores
     Estresador[] estresadores = new Estresador[numJugadores];
     String username;
-    // Agrega a todos los jugadores
     for(int i = 0; i < numJugadores ; i++) {
       // Calcula el tiempo promedio de login
       username = i + "";
