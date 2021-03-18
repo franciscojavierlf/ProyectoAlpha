@@ -35,7 +35,7 @@ public final class Server {
    */
   public void tryDeclareWinner(String username) throws InterruptedException {
     if (game.isWinner(username)) {
-      broadcast.declareWinner(username);
+      broadcast.broadcastWinner(username);
       listener.stopListening();
       // Waits until the broadcast and listener are done
       broadcast.join();

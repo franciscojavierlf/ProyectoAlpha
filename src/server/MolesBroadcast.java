@@ -28,14 +28,6 @@ public class MolesBroadcast extends Thread {
   }
 
   /**
-   * Declara al ganador de la partida.
-   * @param username
-   */
-  public void declareWinner(String username) {
-    winner = username;
-  }
-
-  /**
    * Comienza la conexion multicast.
    */
   private void startConnection() {
@@ -78,14 +70,16 @@ public class MolesBroadcast extends Thread {
   /**
    * Hace un broadcast del ganador.
    */
-  private void broadcastWinner() {
-    if (winner == null) return;
+  public void broadcastWinner(String username) {
+
+    winner = username; // Para detener el loop principal
 
     System.out.println("Ha ganado " + winner);
     try {
       // Detiene el juego y luego manda el ganador
       broadcastMessage("WINNER");
       broadcastMessage(winner);
+      System.out.println("Se ha indicado a los jugadores");
     } catch (IOException ex) {
       Logger.getLogger(MolesBroadcast.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -101,8 +95,6 @@ public class MolesBroadcast extends Thread {
         broadcastMole();
         Thread.sleep(MyConstants.GAME_SPEED);
       }
-      // Ya hubo un ganador
-      broadcastWinner();
     } catch (InterruptedException e) {
       e.printStackTrace();
     } finally {

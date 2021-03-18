@@ -118,7 +118,7 @@ public final class PlayerConnection extends Thread {
 
     // Escucha constantemente
     while(true) {
-      buffer = new byte[1000];
+      buffer = new byte[100];
       msgIn = new DatagramPacket(buffer, buffer.length);
       // Recibe el mensaje
       multicastSocket.receive(msgIn);

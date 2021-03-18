@@ -4,6 +4,7 @@ import client.MoleListener;
 import client.PlayerConnection;
 import shared.IGame;
 import shared.MyConstants;
+import shared.Player;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -19,21 +20,24 @@ public class Estresador extends Thread {
   private final static Random random = new Random();
 
   private final String username;
-  private final PlayerConnection connection;
+  private final PlayerConnection connection = new PlayerConnection();
 
   private float average = 0.0f;
   private int hits = 0;
 
 
-  public Estresador(String username, PlayerConnection connection) {
+  public Estresador(String username) {
     this.username = username;
-    this.connection = connection;
+    init();
   }
 
   /**
-   * Agrega los listeners necesarios.
+   * Agrega los listeners necesarios y se conecta al servidor.
    */
-  public void init() {
+  private void init() {
+    // Se conecta al servidor
+    connection.connect();
+
     // Aleatoriamente pega cada vez que recibe señal de topo
     connection.addMoleListener(new MoleListener() {
       @Override
@@ -78,6 +82,9 @@ public class Estresador extends Thread {
   @Override
   public void run() {
     try {
+      // Comienza a escuchar el broadcast
+      connection.start();
+      
       // Hace login
       long time = System.currentTimeMillis();
       connection.getGame().login(username);
@@ -96,11 +103,6 @@ public class Estresador extends Thread {
    */
   public static void main(String[] args) {
 
-    PlayerConnection connection = new PlayerConnection();
-    connection.connect();
-    // Empieza a escuchar el broadcast
-    connection.start();
-
     // Hace varios jugadores y estresa el servidor
     Estresador estresador;
     int numJugadores = 10;
@@ -110,8 +112,7 @@ public class Estresador extends Thread {
     for(int i = 0; i < numJugadores ; i++) {
       // Calcula el tiempo promedio de login
       username = i + "";
-      estresadores[i] = new Estresador(username, connection);
-      estresadores[i].init(); // Inicializa listeners (no afecta al estresador)
+      estresadores[i] = new Estresador(username);
     }
     // Luego todos hacen login, indican que estan listos y comienzan a pegar
     for (Estresador s : estresadores)
