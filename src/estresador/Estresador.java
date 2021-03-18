@@ -1,5 +1,6 @@
 package estresador;
 
+import client.MoleListener;
 import client.PlayerConnection;
 import shared.IGame;
 import shared.MyConstants;
@@ -21,6 +22,7 @@ public class Estresador extends Thread {
   private final PlayerConnection connection;
 
   private float average = 0.0f;
+  private int hits = 0;
 
 
   public Estresador(String username, PlayerConnection connection) {
@@ -29,25 +31,49 @@ public class Estresador extends Thread {
   }
 
   /**
-   * Regresa el promedio de tiempo del estresador.
-   * @return
+   * Agrega los listeners necesarios.
    */
-  public float getAverage() {
-    return average;
+  public void init() {
+    final String estresadorUsername = username;
+    // Aleatoriamente pega cada vez que recibe señal de topo
+    connection.addMoleListener(new MoleListener() {
+      @Override
+      public void onPositionReceived(int position) {
+        // Va aumentando el tiempo que toma pegar
+        average += hitRandom(position);
+        hits++;
+      }
+
+      @Override
+      public void onPlayerWin(String username) {
+        // Acabando el juego, imprime el promedio
+        average /= hits;
+        System.out.println("Tiempo promedio de " + estresadorUsername + ": " + average);
+      }
+    });
   }
 
   /**
    * Golpea aleatoriamente a los topos.
    * @return
    */
-  private long hitRandom() {
-    // Golpea
-    if (random.nextInt(5) == 0) {
-      long time = System.currentTimeMillis();
-      connection.hit(username, random.nextInt(MyConstants.MOLES_AREA_SIZE * MyConstants.MOLES_AREA_SIZE));
-      return System.currentTimeMillis() - time;
+  private long hitRandom(int position) {
+    int action = random.nextInt(3);
+    long time = System.currentTimeMillis();
+
+    switch (action) {
+        // Golpea al topo
+      case 0:
+        connection.hit(username, position);
+        break;
+        // Golpea aleatoriamente
+      case 1:
+        connection.hit(username, random.nextInt(MyConstants.MOLES_AREA_SIZE * MyConstants.MOLES_AREA_SIZE));
+        break;
+        // No hace nada
+      default: break;
     }
-    return 0l;
+    return System.currentTimeMillis() - time;
   }
 
   @Override
@@ -58,30 +84,6 @@ public class Estresador extends Thread {
     } catch (RemoteException e) {
       e.printStackTrace();
     }
-
-    // Aleatoriamente pega
-    int hits = 0;
-    long time = 0l;
-    long aux;
-    while (true) {
-      if (hits >= MyConstants.POINTS_TO_WIN) {
-        average = time / hits;
-        System.out.println(average);
-      }
-      else {
-        aux = hitRandom();
-        // Pego
-        if (aux > 0l) {
-          hits++;
-          time += aux;
-        }
-      }
-      try {
-        Thread.sleep(20);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
   }
 
   /**
@@ -89,6 +91,10 @@ public class Estresador extends Thread {
    * @param args
    */
   public static void main(String[] args) {
+
+    String type = "login"; // Hace las pruebas de login
+    //String type = "play"; // Hace las pruebas de jugar;
+
     PlayerConnection connection = new PlayerConnection();
     connection.connect();
     // Empieza a escuchar el broadcast
@@ -103,6 +109,7 @@ public class Estresador extends Thread {
       for(int i = 0; i < numJugadores ; i++) {
         connection.getGame().login(i + "");
         estresadores[i] = new Estresador(i + "", connection);
+        estresadores[i].init(); // Inicializa listeners
       }
       // Luego todos indican que estan listos y comienzan a pegar
       for (Estresador s : estresadores)
@@ -110,8 +117,5 @@ public class Estresador extends Thread {
     } catch (RemoteException e) {
       e.printStackTrace();
     }
-
-
   }
-
 }

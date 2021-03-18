@@ -4,11 +4,17 @@ import shared.MyConstants;
 import shared.IGame;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.text.StyleContext;
+import java.awt.*;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * GUI para realizar el login al servidor.
@@ -37,7 +43,7 @@ public class LoginGUI extends JFrame {
       // ERROR: sin nombre adecuado
       if (username.trim().isEmpty())
         System.err.println("Nombre invalido");
-      // Comienza conexion
+        // Comienza conexion
       else {
         connection = new PlayerConnection();
         connection.connect();
@@ -46,8 +52,7 @@ public class LoginGUI extends JFrame {
             System.out.println("Entrando al juego...");
             GameboardGUI board = new GameboardGUI(username, connection);
             setVisible(false);
-          }
-          else System.err.println("Jugador ya existente");
+          } else System.err.println("Jugador ya existente");
         } catch (RemoteException remoteException) {
           remoteException.printStackTrace();
         }
@@ -57,6 +62,7 @@ public class LoginGUI extends JFrame {
 
   /**
    * Abre la ventana.
+   *
    * @param args
    */
   public static void main(String args[]) {
@@ -69,15 +75,16 @@ public class LoginGUI extends JFrame {
         }
       }
     } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(LoginGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      Logger.getLogger(LoginGUI.class.getName()).log(Level.SEVERE, null, ex);
     } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(LoginGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      Logger.getLogger(LoginGUI.class.getName()).log(Level.SEVERE, null, ex);
     } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(LoginGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      Logger.getLogger(LoginGUI.class.getName()).log(Level.SEVERE, null, ex);
     } catch (UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(LoginGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      Logger.getLogger(LoginGUI.class.getName()).log(Level.SEVERE, null, ex);
     }
 
     LoginGUI login = new LoginGUI();
   }
+
 }
