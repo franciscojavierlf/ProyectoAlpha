@@ -10,7 +10,8 @@ public final class Player {
   private int score = 0;
   private int matchesWon = 0;
   private boolean ready = false;
-  private boolean disabled = true;
+  private boolean online = false;
+  private boolean hitDisabled = true;
 
   public Player(String username) {
     this.username = username;
@@ -37,16 +38,32 @@ public final class Player {
    * y no puede volver a pegar hasta el siguiente topo.
    * @param disabled
    */
-  public void setDisabled(boolean disabled) {
-    this.disabled = disabled;
+  public void setHitDisabled(boolean hitDisabled) {
+    this.hitDisabled = hitDisabled;
   }
 
   /**
    * Checa si el jugador esta deshabilitado para pegar.
    * @return
    */
-  public boolean isDisabled() {
-    return disabled;
+  public boolean isHitDisabled() {
+    return hitDisabled;
+  }
+
+  /**
+   * Indica si un jugador esta conectado.
+   * @param online
+   */
+  public void setOnline(boolean online) {
+    this.online = online;
+  }
+
+  /**
+   * Checa si el jugador esta en linea.
+   * @return
+   */
+  public boolean isOnline() {
+    return this.online;
   }
 
   /**

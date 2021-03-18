@@ -16,6 +16,7 @@ public final class GameboardGUI extends JFrame {
   private JPanel panel;
   private JButton[] buttons;
   private JButton readyButton;
+  private JButton logoutButton;
   private JTextArea output;
   private JTextArea scoreOutput;
 
@@ -33,6 +34,7 @@ public final class GameboardGUI extends JFrame {
     // Agrega otras cosas
     addReadyButton();
     addOutput();
+    addLogoutButton();
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLocationRelativeTo(null);
     pack();
@@ -111,6 +113,22 @@ public final class GameboardGUI extends JFrame {
       }
     });
     panel.add(readyButton);
+  }
+
+  /**
+   * El boton para salirse.
+   */
+  private void addLogoutButton() {
+    logoutButton = new JButton();
+    logoutButton.addActionListener(l -> {
+      try {
+        // Se desconecta del servidor y cierra el programa
+        connection.getGame().logout(username);
+        System.exit(0);
+      } catch (RemoteException e) {
+        e.printStackTrace();
+      }
+    });
   }
 
   /**

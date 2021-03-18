@@ -19,6 +19,8 @@ public final class Server {
 
   public Server() {
     game = new Game(this); // Estado del juego
+    broadcast = new MolesBroadcast(this);
+    listener = new HitsListener(this);
   }
 
   /**
@@ -35,7 +37,7 @@ public final class Server {
    */
   public void tryDeclareWinner(String username) throws InterruptedException {
     if (game.isWinner(username)) {
-      broadcast.broadcastWinner(username);
+      broadcast.declareWinner(username);
       listener.stopListening();
       // Waits until the broadcast and listener are done
       broadcast.join();
@@ -65,16 +67,15 @@ public final class Server {
    * Comienza a correr el juego.
    */
   private void startNewMatch() throws InterruptedException {
-    // Inicializa todos los servicios
-    broadcast = new MolesBroadcast(this); // Multicast
-    listener = new HitsListener(this); // TCP
-
     // Comienza una nueva partida
     game.startNewMatch();
 
     // Escucha que todos los jugadores esten listos cada medio segundo
     System.out.println("Esperando jugadores...");
-    while(!game.allPlayersReady()) {
+    while(!game.hasOnlinePlayers() || !game.allPlayersReady()) {
+      System.out.println("online" + game.hasOnlinePlayers());
+      System.out.println("ready" + game.allPlayersReady());
+      System.out.println("-----");
       Thread.sleep(1000);
     }
     System.out.println("Listo! A comenzar.");

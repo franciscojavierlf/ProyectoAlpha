@@ -62,24 +62,29 @@ public class MolesBroadcast extends Thread {
       // Crea el mensaje de la posicion y lo manda
       int position = server.getCurrentGame().triggerNextMole();
       broadcastMessage(position + "");
-  } catch (IOException ex) {
-    Logger.getLogger(MolesBroadcast.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (IOException ex) {
+      Logger.getLogger(MolesBroadcast.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
+
+  /**
+   * Declara al ganador.
+   * @param username
+   */
+  public void declareWinner(String username) {
+    winner = username;
   }
 
   /**
    * Hace un broadcast del ganador.
    */
-  public void broadcastWinner(String username) {
-
-    winner = username; // Para detener el loop principal
+  private void broadcastWinner() {
 
     System.out.println("Ha ganado " + winner);
     try {
       // Detiene el juego y luego manda el ganador
       broadcastMessage("WINNER");
       broadcastMessage(winner);
-      System.out.println("Se ha indicado a los jugadores");
     } catch (IOException ex) {
       Logger.getLogger(MolesBroadcast.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -95,6 +100,8 @@ public class MolesBroadcast extends Thread {
         broadcastMole();
         Thread.sleep(MyConstants.GAME_SPEED);
       }
+      // Anuncia al ganador
+      broadcastWinner();
     } catch (InterruptedException e) {
       e.printStackTrace();
     } finally {

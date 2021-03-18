@@ -58,9 +58,24 @@ public final class Game implements IGame {
    * @return
    */
   public boolean allPlayersReady() {
-    int i = 0;
-    while (i < players.size() && players.get(i).isReady()) i++;
-    return i > 0 && i >= players.size();
+    // Si un jugador esta offline, lo ignora
+    for (Player p : players) {
+      if (p.isOnline() && !p.isReady())
+        return false;
+    }
+    return true;
+  }
+
+  /**
+   * Checa si hay jugadores registrados.
+   * @return
+   */
+  public boolean hasOnlinePlayers() {
+    for (Player p : players) {
+      if (p.isOnline())
+        return true;
+    }
+    return false;
   }
 
   /**
@@ -70,7 +85,7 @@ public final class Game implements IGame {
   public int triggerNextMole() {
     // Rehabilita a todos los jugadores para pegar
     for (Player p : players)
-      p.setDisabled(false);
+      p.setHitDisabled(false);
     // Obtiene la nueva posicion
     molePosition = random.nextInt(MyConstants.MOLES_AREA_SIZE * MyConstants.MOLES_AREA_SIZE);
     return molePosition;
@@ -111,12 +126,34 @@ public final class Game implements IGame {
    */
   @Override
   public synchronized boolean login(String username) throws RemoteException {
-    // Jugador ya existe
-    if (playerExists(username))
-      return false;
+    Player p = getPlayer(username);
+    if (p != null) {
+      // El jugador ya esta conectado, entonces no puede conectarse de nuevo
+      if (p.isOnline())
+        return false;
+      // Jugador estaba desconectado
+      p.setOnline(true);
+      return true;
+    }
     // Jugador no existe, entonces lo agregamos a la partida
-    addNewPlayer(username);
+    else addNewPlayer(username).setOnline(true);
     return true;
+  }
+
+  /**
+   * Saca a un jugador del juego. No lo borra para que pueda regresar.
+   * @param username
+   * @return
+   * @throws RemoteException
+   */
+  @Override
+  public boolean logout(String username) throws RemoteException {
+    Player p = getPlayer(username);
+    if (p != null) {
+      p.setOnline(false);
+      p.setReady(false);
+    }
+    return p != null;
   }
 
   /**
@@ -127,9 +164,9 @@ public final class Game implements IGame {
    */
   public boolean hitMole(String username, int position) {
     Player p = getPlayer(username);
-    if (p != null && !p.isDisabled() && position == molePosition) {
+    if (p != null && !p.isHitDisabled() && position == molePosition) {
       p.addPoint();
-      p.setDisabled(true);
+      p.setHitDisabled(true);
       return true;
     }
     return false;

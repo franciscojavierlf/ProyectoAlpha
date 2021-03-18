@@ -52,6 +52,12 @@ public class Estresador extends Thread {
         // Acabando el juego, imprime el promedio
         average /= hits;
         System.out.println("Tiempo promedio de golpe para " + username + ": " + average);
+        // Y se sale del juego
+        try {
+          connection.getGame().logout(username);
+        } catch (RemoteException e) {
+          e.printStackTrace();
+        }
       }
     });
   }
@@ -103,7 +109,7 @@ public class Estresador extends Thread {
    */
   public static void main(String[] args) {
     // Hace varios jugadores y estresa el servidor
-    int numJugadores = 250;
+    int numJugadores = 10;
 
     // Configuracion especial para el limite de sockets
     System.setProperty("sun.net.maxDatagramSockets", numJugadores + "");

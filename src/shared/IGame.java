@@ -18,6 +18,14 @@ public interface IGame extends Remote {
   public boolean login(String username) throws RemoteException;
 
   /**
+   * Desconecta al jugador del servidor.
+   * @param username
+   * @return
+   * @throws RemoteException
+   */
+  public boolean logout(String username) throws RemoteException;
+
+  /**
    * El jugador indica que ya esta listo para iniciar.
    * @param username
    * @throws RemoteException
